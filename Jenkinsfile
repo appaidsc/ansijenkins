@@ -10,14 +10,19 @@ pipeline {
         }
 
         stage('Run Ansible Playbook') {
-            steps {
-                sshagent(credentials: ['ec2-ssh-key']) {
-                    // Run ansible-playbook from the cloned repo directory
-                    sh '''
-                       ansible-playbook -i inventory.yml playbook.yml --user ec2-user --become
-                    '''
-                }
-            }
+    steps {
+        sshagent(credentials: ['ec2-ssh-key']) {
+            sh '''
+               mkdir -p ~/.ssh
+               ssh-keyscan -H 172.31.16.51 >> ~/.ssh/known_hosts
+               ssh-keyscan -H 172.31.23.6 >> ~/.ssh/known_hosts
+               ssh-keyscan -H 172.31.28.51 >> ~/.ssh/known_hosts
+
+               ansible-playbook -i inventory.yml playbook.yml --user ec2-user --become
+            '''
         }
+    }
+}
+
     }
 }
